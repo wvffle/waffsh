@@ -6,7 +6,7 @@
 
 char* read_line () {
     char* line = NULL;
-    ssize_t size = 0;
+    size_t size = 0;
 
     if (getline(&line, &size, stdin) == -1) {
         // NOTE: Reached EOF, we can terminate successfully

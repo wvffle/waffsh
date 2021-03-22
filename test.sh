@@ -8,3 +8,4 @@ echo test 2
 non_existant_command 3
 sleep 1
 echo test 3
+ # comment with space

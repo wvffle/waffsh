@@ -9,6 +9,10 @@
 #include <sys/wait.h>
 
 void execute (exec_context* ctx) {
+    if (ctx->flags & EXEC_SKIP) {
+        return;
+    }
+
     pid_t pid = fork();
     if (pid == -1) {
         syslog(LOG_ERR, "error when forking child process.");

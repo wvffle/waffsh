@@ -1,6 +1,7 @@
 #pragma once
 
 #define EXEC_BACKGROUND 1 << 0
+#define EXEC_SKIP       1 << 1
 
 typedef struct {
     char** argv;

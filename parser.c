@@ -41,6 +41,11 @@ exec_context* parse(char* line) {
     ctx->argv = tokens;
     ctx->flags = 0;
 
+    if (ctx->argv[0] == NULL || ctx->argv[0][0] == '#') {
+        ctx->flags |= EXEC_SKIP;
+        return ctx;
+    }
+
     int j = strlen(ctx->argv[i - 1]) - 1;
     if (ctx->argv[i - 1][j] == '&') {
         ctx->flags |= EXEC_BACKGROUND;

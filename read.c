@@ -4,14 +4,13 @@
 #include <syslog.h>
 #include <stdio.h>
 
-char* read_line () {
+char* read_line (FILE* fp) {
     char* line = NULL;
     size_t size = 0;
 
-    if (getline(&line, &size, stdin) == -1) {
-        // NOTE: Reached EOF, we can terminate successfully
-        if (feof(stdin)) {
-            exit(EXIT_SUCCESS);
+    if (getline(&line, &size, fp) == -1) {
+        if (feof(fp)) {
+            return NULL;
         }
 
         syslog(LOG_ERR, "read_line can't read the line.");

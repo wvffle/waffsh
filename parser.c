@@ -37,7 +37,7 @@ exec_context* parse(char* line) {
     //       as we do not know the size
     tokens[i] = NULL;
 
-    exec_context* ctx = malloc(sizeof(exec_context*));
+    exec_context* ctx = malloc(sizeof(exec_context));
     ctx->argv = tokens;
     ctx->flags = 0;
 

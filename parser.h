@@ -1,3 +1,4 @@
 #pragma once
+#include "executor.h"
 
-char** parse(char* line);
+exec_context* parse(char* line);

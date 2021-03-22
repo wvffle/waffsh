@@ -8,7 +8,7 @@
 #include <errno.h>
 #include <sys/wait.h>
 
-void execute (char** argv) {
+void execute (exec_context* ctx) {
     pid_t pid = fork();
     if (pid == -1) {
         syslog(LOG_ERR, "error when forking child process.");
@@ -16,14 +16,20 @@ void execute (char** argv) {
     }
 
     if (pid == 0) {
-        if(execvp(argv[0], argv) == -1) {
-            syslog(LOG_ERR, "error when executing command %s: %s", argv[0], strerror(errno));
-            fprintf(stderr, "%s: %s\n", argv[0], strerror(errno));
+        if(execvp(ctx->argv[0], ctx->argv) == -1) {
+            syslog(LOG_ERR, "error when executing command %s: %s", ctx->argv[0], strerror(errno));
+            fprintf(stderr, "%s: %s\n", ctx->argv[0], strerror(errno));
             exit(EXIT_FAILURE);
         }
 
         // NOTE: execvp replaced the forked child process
         //       so there is no need to exit
+    }
+
+    // NOTE: Don't wait for pid to finish
+    //       when EXEC_BACKGROUND is set
+    if (ctx->flags & EXEC_BACKGROUND) {
+        return;
     }
 
     int stat_loc;
@@ -41,4 +47,9 @@ void execute (char** argv) {
             // NOTE: Should we exit with failure here?
         }
     } while (!WIFEXITED(stat_loc) && !WIFSIGNALED(stat_loc));
+}
+
+void free_exec_context (exec_context* ctx) {
+    free(ctx->argv);
+    free(ctx);
 }

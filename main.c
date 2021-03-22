@@ -1,25 +1,22 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <syslog.h>
-
 #include "read.h"
 #include "parser.h"
 #include "constants.h"
 #include "executor.h"
 
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <syslog.h>
 
 void loop () {
     do {
         fprintf(stdout, "%s", PROMPT);
 
         char* line = read_line();
-        char** argv = parse(line);
-
-        execute(argv);
+        exec_context* ctx = parse(line);
+        execute(ctx);
 
         free(line);
-        free(argv);
+        free_exec_context(ctx);
     } while (1);
 }
 

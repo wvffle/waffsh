@@ -1,10 +1,12 @@
 #include "parser.h"
 #include "constants.h"
+#include "executor.h"
+
 #include <string.h>
 #include <stdlib.h>
 #include <syslog.h>
 
-char** parse(char* line) {
+exec_context* parse(char* line) {
     unsigned int size = PARSER_TOKEN_BUFFER_SIZE;
     char** tokens = malloc(sizeof(char*) * size);
     if (!tokens) {
@@ -31,9 +33,19 @@ char** parse(char* line) {
         }
     }
 
-    // NOTE: Need a way to check the end of array
+    // NOTE: Need a way to signalize the end of array
     //       as we do not know the size
     tokens[i] = NULL;
 
-    return tokens;
+    exec_context* ctx = malloc(sizeof(exec_context*));
+    ctx->argv = tokens;
+    ctx->flags = 0;
+
+    int j = strlen(ctx->argv[i - 1]) - 1;
+    if (ctx->argv[i - 1][j] == '&') {
+        ctx->flags |= EXEC_BACKGROUND;
+        ctx->argv[i - 1][j] = '\0';
+    }
+
+    return ctx;
 }

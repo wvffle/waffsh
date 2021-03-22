@@ -3,7 +3,9 @@
 #include <syslog.h>
 
 #include "read.h"
+#include "parser.h"
 #include "constants.h"
+#include "executor.h"
 
 
 
@@ -12,8 +14,12 @@ void loop () {
         fprintf(stdout, "%s", PROMPT);
 
         char* line = read_line();
+        char** argv = parse(line);
+
+        execute(argv);
 
         free(line);
+        free(argv);
     } while (1);
 }
 

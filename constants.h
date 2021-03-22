@@ -2,5 +2,8 @@
 
 #define PROMPT "> "
 
-#define PARSER_TOKEN_DELIMETERS "\t "
+// NOTE: The \n is within the delimeters because
+//       execvp was failing due to execution of
+//       arguments like 'firefox\n'
+#define PARSER_TOKEN_DELIMETERS "\n\t "
 #define PARSER_TOKEN_BUFFER_SIZE 8

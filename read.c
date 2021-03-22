@@ -18,5 +18,6 @@ char* read_line () {
         exit(EXIT_FAILURE);
     }
 
+
     return line;
 }

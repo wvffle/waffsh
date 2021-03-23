@@ -11,8 +11,7 @@
 typedef struct s_exec_node exec_node;
 
 struct s_exec_node {
-    // TODO: Change argv to tokens
-    char** argv;
+    char** tokens;
     exec_node* node;
     int relation;
 };

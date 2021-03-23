@@ -21,9 +21,9 @@ void execute (exec_context* ctx) {
 
     if (pid == 0) {
         // TODO: Rework
-//        if(execvp(ctx->argv[0], ctx->argv) == -1) {
-//            syslog(LOG_ERR, "error when executing command %s: %s on line %d", ctx->argv[0], strerror(errno), ctx->lineno);
-//            fprintf(stderr, "line %d: %s: %s\n", ctx->lineno, ctx->argv[0], strerror(errno));
+//        if(execvp(ctx->tokens[0], ctx->tokens) == -1) {
+//            syslog(LOG_ERR, "error when executing command %s: %s on line %d", ctx->tokens[0], strerror(errno), ctx->lineno);
+//            fprintf(stderr, "line %d: %s: %s\n", ctx->lineno, ctx->tokens[0], strerror(errno));
 //            exit(EXIT_FAILURE);
 //        }
 
@@ -58,12 +58,12 @@ void free_exec_context (exec_context* ctx) {
     exec_node* node = ctx->node;
     while (node) {
         exec_node* next = node->node;
-        if (node->argv != NULL) {
-            for (int i = 0; node->argv[i] != NULL; ++i) {
-                free(node->argv[i]);
+        if (node->tokens != NULL) {
+            for (int i = 0; node->tokens[i] != NULL; ++i) {
+                free(node->tokens[i]);
             }
 
-            free(node->argv);
+            free(node->tokens);
         }
 
         free(node);

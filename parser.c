@@ -10,29 +10,29 @@
 void _push_token(exec_node* node, char* line, int i, int start, int end) {
     char* token = umalloc(sizeof(char) * (end - start), "tokenizer allocation error.");
     strncpy(token, line + sizeof(char) * start, end - start);
-    node->argv[i] = token;
+    node->tokens[i] = token;
 
     // NOTE: Dynamic check if next size would be bigger
     // TODO: Double buffer size to avoid O(n^2) complexity as much as possible
     if ((i + 1) / PARSER_TOKEN_BUFFER_SIZE > i / PARSER_TOKEN_BUFFER_SIZE) {
         int size = ((i + 1) / PARSER_TOKEN_BUFFER_SIZE + 1) * PARSER_TOKEN_BUFFER_SIZE;
-        node->argv = urealloc(
-                node->argv,
+        node->tokens = urealloc(
+                node->tokens,
                 sizeof(char*) * size,
                 "tokenizer reallocation error."
         );
 
         for (int j = 0; j < PARSER_TOKEN_BUFFER_SIZE; ++j) {
-            node->argv[size - 1 - j] = NULL;
+            node->tokens[size - 1 - j] = NULL;
         }
     }
 }
 
 exec_node* _create_node () {
     exec_node* node = umalloc(sizeof(exec_node), "parser allocation error.");
-    node->argv = umalloc(sizeof(char*) * PARSER_TOKEN_BUFFER_SIZE, "parser allocation error.");
+    node->tokens = umalloc(sizeof(char*) * PARSER_TOKEN_BUFFER_SIZE, "parser allocation error.");
     for (int i = 0; i < PARSER_TOKEN_BUFFER_SIZE; ++i) {
-        node->argv[i] = NULL;
+        node->tokens[i] = NULL;
     }
     node->node = NULL;
     node->relation = 0;
@@ -82,7 +82,7 @@ exec_context* parse(char* line) {
             exec_node* next_node = _create_node();
 
             node->node = next_node;
-            node->argv[token_idx] = NULL;
+            node->tokens[token_idx] = NULL;
             node->relation = c == '>'
                     ? EXEC_RELATION_REDIRECT_APPEND
                     : EXEC_RELATION_REDIRECT_WRITE;
@@ -107,7 +107,7 @@ exec_context* parse(char* line) {
             exec_node* next_node = _create_node();
 
             node->node = next_node;
-            node->argv[token_idx] = NULL;
+            node->tokens[token_idx] = NULL;
             node->relation = EXEC_RELATION_PIPE;
 
             token_idx = 0;
@@ -127,12 +127,12 @@ exec_context* parse(char* line) {
             //       left hand side in background.
             if (c == '&') {
                 ctx->flags |= EXEC_BACKGROUND;
-                node->argv[token_idx] = NULL;
+                node->tokens[token_idx] = NULL;
                 break;
             }
 
             if (c == '#') {
-                node->argv[token_idx] = NULL;
+                node->tokens[token_idx] = NULL;
                 break;
             }
 
@@ -142,7 +142,7 @@ exec_context* parse(char* line) {
         lastc = c;
     }
 
-    if (ctx->node->argv[0] == NULL) {
+    if (ctx->node->tokens[0] == NULL) {
         ctx->flags |= EXEC_SKIP;
     }
 

@@ -8,8 +8,9 @@
 #include <syslog.h>
 
 void _push_token(exec_node* node, char* line, int i, int start, int end) {
-    char* token = umalloc(sizeof(char) * (end - start), "tokenizer allocation error.");
+    char* token = umalloc(sizeof(char) * (end - start + 1), "tokenizer allocation error.");
     strncpy(token, line + sizeof(char) * start, end - start);
+    token[end - start] = '\0';
     node->tokens[i] = token;
 
     // NOTE: Dynamic check if next size would be bigger

@@ -34,7 +34,9 @@ int main(int argc, char **argv) {
     FILE* fp = stdin;
 
     if (argc > 1) {
-        fp = fopen(realpath(argv[1], NULL), "r");
+        char* path = realpath(argv[1], NULL);
+        fp = fopen(path, "r");
+        free(path);
     }
 
     loop(fp);

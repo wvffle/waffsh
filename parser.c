@@ -13,7 +13,6 @@ void _push_token(exec_node* node, char* line, int i, int start, int end) {
     node->argv[i] = token;
 
     // NOTE: Dynamic check if next size would be bigger
-    // TODO: We may miss the threshold by 1, need to check that
     if ((i + 1) / PARSER_TOKEN_BUFFER_SIZE > i / PARSER_TOKEN_BUFFER_SIZE) {
         int size = ((i + 1) / PARSER_TOKEN_BUFFER_SIZE + 1) * PARSER_TOKEN_BUFFER_SIZE;
         node->argv = urealloc(
@@ -57,20 +56,7 @@ exec_context* parse(char* line) {
     exec_node* node = _create_node();
     ctx->node = node;
 
-//    unsigned int commands_size = PARSER_COMMANDS_BUFFER_SIZE;
-//    char*** commands = malloc(sizeof(char**) * commands_size);
-//    if (!commands) {
-//        syslog(LOG_ERR, "parser allocation error.");
-//        exit(EXIT_FAILURE);
-//    }
-//
-//    unsigned int cmd_idx = 0;
     unsigned int token_idx = 0;
-//    char** tokens = malloc(sizeof(char*) * token_size);
-//    if (!tokens) {
-//        syslog(LOG_ERR, "parser allocation error.");
-//        exit(EXIT_FAILURE);
-//    }
 
     char lastc = '\0';
     int last_token_idx = 0;

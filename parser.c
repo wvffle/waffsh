@@ -15,11 +15,16 @@ void _push_token(exec_node* node, char* line, int i, int start, int end) {
     // NOTE: Dynamic check if next size would be bigger
     // TODO: We may miss the threshold by 1, need to check that
     if ((i + 1) / PARSER_TOKEN_BUFFER_SIZE > i / PARSER_TOKEN_BUFFER_SIZE) {
+        int size = ((i + 1) / PARSER_TOKEN_BUFFER_SIZE + 1) * PARSER_TOKEN_BUFFER_SIZE;
         node->argv = urealloc(
                 node->argv,
-                ((i + 1) / PARSER_TOKEN_BUFFER_SIZE + 1) * PARSER_TOKEN_BUFFER_SIZE,
+                sizeof(char*) * size,
                 "tokenizer reallocation error."
         );
+
+        for (int j = 0; j < PARSER_TOKEN_BUFFER_SIZE; ++j) {
+            node->argv[size - 1 - j] = NULL;
+        }
     }
 }
 

@@ -30,7 +30,12 @@ char read_char (int fd) {
         }
     }
 
-    return *(buffer + i++);
+    char c = *(buffer + i++);
+    if (c == '\0' && *(buffer + i - 2) == '\0') {
+        return EOF;
+    }
+
+    return c;
 }
 
 char* read_line (int fd) {
@@ -42,11 +47,12 @@ char* read_line (int fd) {
     while (1) {
         char c = read_char(fd);
 
-        if (c == EOF || c == '\0') {
-            return line;
+        if (c == EOF) {
+            free(line);
+            return NULL;
         }
 
-        if (c == '\n') {
+        if (c == '\n' || c == '\0') {
             break;
         }
 

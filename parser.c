@@ -1,57 +1,157 @@
 #include "parser.h"
 #include "constants.h"
 #include "executor.h"
+#include "utils/malloc.h"
 
 #include <string.h>
 #include <stdlib.h>
 #include <syslog.h>
 
+void _push_token(exec_node* node, char* line, int i, int start, int end) {
+    char* token = umalloc(sizeof(char) * (end - start), "tokenizer allocation error.");
+    strncpy(token, line + sizeof(char) * start, end - start);
+    node->argv[i] = token;
+
+    // NOTE: Dynamic check if next size would be bigger
+    // TODO: We may miss the threshold by 1, need to check that
+    if ((i + 1) / PARSER_TOKEN_BUFFER_SIZE > i / PARSER_TOKEN_BUFFER_SIZE) {
+        node->argv = urealloc(
+                node->argv,
+                ((i + 1) / PARSER_TOKEN_BUFFER_SIZE + 1) * PARSER_TOKEN_BUFFER_SIZE,
+                "tokenizer reallocation error."
+        );
+    }
+}
+
+exec_node* _create_node () {
+    exec_node* node = umalloc(sizeof(exec_node), "parser allocation error.");
+    node->argv = umalloc(sizeof(char*) * PARSER_TOKEN_BUFFER_SIZE, "parser allocation error.");
+    for (int i = 0; i < PARSER_TOKEN_BUFFER_SIZE; ++i) {
+        node->argv[i] = NULL;
+    }
+    node->node = NULL;
+    node->relation = 0;
+    return node;
+}
+
+// NOTE: Supports:
+//       - cmd1 | cmd2
+//       - cmd2 > cmd2
+//       - cmd2 >> cmd2
+//       - cmd1 &
+
+// TODO: Add support for escaping spaces
+// TODO: Add support for escaping \&
 exec_context* parse(char* line) {
-    unsigned int size = PARSER_TOKEN_BUFFER_SIZE;
-    char** tokens = malloc(sizeof(char*) * size);
-    if (!tokens) {
-        syslog(LOG_ERR, "parser allocation error.");
-        exit(EXIT_FAILURE);
-    }
-
-    int i = 0;
-    const char* delims = PARSER_TOKEN_DELIMETERS;
-
-    // NOTE: tokenizer modified from previous university project:
-    //       https://github.com/wvffle/waffy/blob/studies/src/utils.c#L59
-    for (char* token = strtok(line, delims); token != NULL; token = strtok(NULL, delims)) {
-        tokens[i] = token;
-
-        if (++i >= size) {
-            size += PARSER_TOKEN_BUFFER_SIZE;
-            tokens = realloc(tokens, sizeof(char*) * size);
-
-            if (!tokens) {
-                syslog(LOG_ERR, "parser reallocation error.");
-                exit(EXIT_FAILURE);
-            }
-        }
-    }
-
-    // NOTE: Need a way to signalize the end of array
-    //       as we do not know the size
-    tokens[i] = NULL;
-
     static int lineno = 0;
-    exec_context* ctx = malloc(sizeof(exec_context));
-    ctx->argv = tokens;
+    exec_context* ctx = umalloc(sizeof(exec_context), "parser allocation error.");
+    ctx->node = NULL;
     ctx->flags = 0;
     ctx->lineno = ++lineno;
 
-    if (ctx->argv[0] == NULL || ctx->argv[0][0] == '#') {
-        ctx->flags |= EXEC_SKIP;
-        return ctx;
+    exec_node* node = _create_node();
+    ctx->node = node;
+
+//    unsigned int commands_size = PARSER_COMMANDS_BUFFER_SIZE;
+//    char*** commands = malloc(sizeof(char**) * commands_size);
+//    if (!commands) {
+//        syslog(LOG_ERR, "parser allocation error.");
+//        exit(EXIT_FAILURE);
+//    }
+//
+//    unsigned int cmd_idx = 0;
+    unsigned int token_idx = 0;
+//    char** tokens = malloc(sizeof(char*) * token_size);
+//    if (!tokens) {
+//        syslog(LOG_ERR, "parser allocation error.");
+//        exit(EXIT_FAILURE);
+//    }
+
+    char lastc = '\0';
+    int last_token_idx = 0;
+    // NOTE: normally we'd use strtok as it's much easier,
+    //       though we're unsure if we can match
+    //       multi character delimeters
+    for (int i = 0; i < strlen(line) + 1; ++i) {
+        char c = line[i];
+
+        if (lastc == '\0' && c != '#' && strchr(PARSER_TOKEN_DELIMETERS, c) != NULL) {
+            last_token_idx = i + 1;
+            continue;
+        }
+
+        if (lastc == '>') {
+            if (lastc != '\0') {
+                _push_token(node, line, token_idx++, last_token_idx, i - 1);
+                last_token_idx = i + 1;
+                lastc = '\0';
+            }
+
+            exec_node* next_node = _create_node();
+
+            node->node = next_node;
+            node->argv[token_idx] = NULL;
+            node->relation = c == '>'
+                    ? EXEC_RELATION_REDIRECT_APPEND
+                    : EXEC_RELATION_REDIRECT_WRITE;
+
+            token_idx = 0;
+            node = next_node;
+            continue;
+        }
+
+        if (c == '>') {
+            lastc = c;
+            continue;
+        }
+
+        if (c == '|') {
+            if (lastc != '\0') {
+                _push_token(node, line, token_idx++, last_token_idx, i);
+                last_token_idx = i + 1;
+                lastc = '\0';
+            }
+
+            exec_node* next_node = _create_node();
+
+            node->node = next_node;
+            node->argv[token_idx] = NULL;
+            node->relation = EXEC_RELATION_PIPE;
+
+            token_idx = 0;
+            node = next_node;
+            continue;
+        }
+
+        if (strchr(PARSER_TOKEN_DELIMETERS, c) != NULL || c == '\0') {
+            if (lastc != '\0') {
+                _push_token(node, line, token_idx++, last_token_idx, i);
+                lastc = '\0';
+                last_token_idx = i + 1;
+            }
+
+            // NOTE: When parser receives line with unescaped & character,
+            //       it ignores everything after & character and executes
+            //       left hand side in background.
+            if (c == '&') {
+                ctx->flags |= EXEC_BACKGROUND;
+                node->argv[token_idx] = NULL;
+                break;
+            }
+
+            if (c == '#') {
+                node->argv[token_idx] = NULL;
+                break;
+            }
+
+            continue;
+        }
+
+        lastc = c;
     }
 
-    int j = strlen(ctx->argv[i - 1]) - 1;
-    if (ctx->argv[i - 1][j] == '&') {
-        ctx->flags |= EXEC_BACKGROUND;
-        ctx->argv[i - 1][j] = '\0';
+    if (ctx->node->argv[0] == NULL) {
+        ctx->flags |= EXEC_SKIP;
     }
 
     return ctx;

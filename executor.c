@@ -20,11 +20,12 @@ void execute (exec_context* ctx) {
     }
 
     if (pid == 0) {
-        if(execvp(ctx->argv[0], ctx->argv) == -1) {
-            syslog(LOG_ERR, "error when executing command %s: %s on line %d", ctx->argv[0], strerror(errno), ctx->lineno);
-            fprintf(stderr, "line %d: %s: %s\n", ctx->lineno, ctx->argv[0], strerror(errno));
-            exit(EXIT_FAILURE);
-        }
+        // TODO: Rework
+//        if(execvp(ctx->argv[0], ctx->argv) == -1) {
+//            syslog(LOG_ERR, "error when executing command %s: %s on line %d", ctx->argv[0], strerror(errno), ctx->lineno);
+//            fprintf(stderr, "line %d: %s: %s\n", ctx->lineno, ctx->argv[0], strerror(errno));
+//            exit(EXIT_FAILURE);
+//        }
 
         // NOTE: execvp replaced the forked child process
         //       so there is no need to exit
@@ -54,6 +55,20 @@ void execute (exec_context* ctx) {
 }
 
 void free_exec_context (exec_context* ctx) {
-    free(ctx->argv);
+    exec_node* node = ctx->node;
+    while (node) {
+        exec_node* next = node->node;
+        if (node->argv != NULL) {
+            for (int i = 0; node->argv[i] != NULL; ++i) {
+                free(node->argv[i]);
+            }
+
+            free(node->argv);
+        }
+
+        free(node);
+        node = next;
+    }
+
     free(ctx);
 }

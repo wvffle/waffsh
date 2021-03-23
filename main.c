@@ -26,7 +26,7 @@ void loop (int fd) {
         }
 
         exec_context* ctx = parse(line);
-        execute(ctx);
+        // execute(ctx);
 
         free(line);
         free_exec_context(ctx);
@@ -58,3 +58,4 @@ int main(int argc, char **argv) {
     closelog();
     return EXIT_SUCCESS;
 }
+

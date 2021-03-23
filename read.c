@@ -52,6 +52,7 @@ char* read_line (int fd) {
         if (++i >= size) {
             size += READER_LINE_BUFFER_SIZE;
             line = realloc(line, sizeof(char) * size);
+            memset(line + i, '\0', READER_LINE_BUFFER_SIZE);
             if (line == NULL) {
                 syslog(LOG_ERR, "reader reallocation error.");
                 exit(EXIT_FAILURE);

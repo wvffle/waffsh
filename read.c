@@ -17,7 +17,7 @@ char read_char (int fd) {
     static char buffer[READER_FILE_BUFFER_SIZE];
     static size_t i = 0;
 
-    if (i == 0 || i > size) {
+    if (i == 0 || i >= size) {
         int res = read(fd, buffer, size);
         if (res == -1) {
             syslog(LOG_ERR, "reader error: %s", strerror(errno));
@@ -28,10 +28,12 @@ char read_char (int fd) {
         if (res == 0) {
             return EOF;
         }
+
+        i = 0;
     }
 
     char c = *(buffer + i++);
-    if (c == '\0' && *(buffer + i - 2) == '\0') {
+    if (c == '\0' && (*(buffer + i - 2) == '\0') && i > 2) {
         return EOF;
     }
 

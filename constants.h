@@ -2,7 +2,8 @@
 
 #define PROMPT "> "
 
-#define READER_LINE_BUFFER_SIZE 128
+#define READER_LINE_BUFFER_SIZE 256
+#define READER_FILE_BUFFER_SIZE 1024
 
 // NOTE: The \n is within the delimeters because
 //       execvp was failing due to execution of

@@ -13,6 +13,7 @@ void _push_token(exec_node* node, char* line, int i, int start, int end) {
     node->argv[i] = token;
 
     // NOTE: Dynamic check if next size would be bigger
+    // TODO: Double buffer size to avoid O(n^2) complexity as much as possible
     if ((i + 1) / PARSER_TOKEN_BUFFER_SIZE > i / PARSER_TOKEN_BUFFER_SIZE) {
         int size = ((i + 1) / PARSER_TOKEN_BUFFER_SIZE + 1) * PARSER_TOKEN_BUFFER_SIZE;
         node->argv = urealloc(

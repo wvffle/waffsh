@@ -21,8 +21,8 @@ void execute (exec_context* ctx) {
 
     if (pid == 0) {
         if(execvp(ctx->argv[0], ctx->argv) == -1) {
-            syslog(LOG_ERR, "error when executing command %s: %s", ctx->argv[0], strerror(errno));
-            fprintf(stderr, "%s: %s\n", ctx->argv[0], strerror(errno));
+            syslog(LOG_ERR, "error when executing command %s: %s on line %d", ctx->argv[0], strerror(errno), ctx->lineno);
+            fprintf(stderr, "line %d: %s: %s\n", ctx->lineno, ctx->argv[0], strerror(errno));
             exit(EXIT_FAILURE);
         }
 

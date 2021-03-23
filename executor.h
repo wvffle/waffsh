@@ -6,6 +6,7 @@
 typedef struct {
     char** argv;
     unsigned int flags;
+    unsigned int lineno;
 } exec_context;
 
 void execute(exec_context* ctx);

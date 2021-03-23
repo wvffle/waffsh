@@ -37,9 +37,11 @@ exec_context* parse(char* line) {
     //       as we do not know the size
     tokens[i] = NULL;
 
+    static int lineno = 0;
     exec_context* ctx = malloc(sizeof(exec_context));
     ctx->argv = tokens;
     ctx->flags = 0;
+    ctx->lineno = ++lineno;
 
     if (ctx->argv[0] == NULL || ctx->argv[0][0] == '#') {
         ctx->flags |= EXEC_SKIP;

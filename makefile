@@ -11,7 +11,7 @@ $(TARGET): main.o read.o parser.o executor.o
 main.o: main.c read.h constants.h
 	$(CC) $(CFLAGS) -c main.c
 
-read.o: read.c read.h
+read.o: read.c read.h constants.h
 	$(CC) $(CFLAGS) -c read.c
 
 parser.o: parser.c parser.h constants.h executor.h

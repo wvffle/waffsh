@@ -2,6 +2,8 @@
 
 #define PROMPT "> "
 
+#define READER_LINE_BUFFER_SIZE 128
+
 // NOTE: The \n is within the delimeters because
 //       execvp was failing due to execution of
 //       arguments like 'firefox\n'

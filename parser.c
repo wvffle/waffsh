@@ -74,7 +74,7 @@ exec_context* parse(char* line) {
             continue;
         }
 
-        if (lastc == '>') {
+        if (c == '>') {
             if (lastc != '\0') {
                 _push_token(node, line, token_idx++, last_token_idx, i - 1);
                 last_token_idx = i + 1;
@@ -89,9 +89,9 @@ exec_context* parse(char* line) {
 
             node->node = next_node;
             node->tokens[token_idx] = NULL;
-            node->relation = c == '>'
-                    ? EXEC_RELATION_REDIRECT_APPEND
-                    : EXEC_RELATION_REDIRECT_WRITE;
+            node->relation = line[i + 1] == '>'
+                             ? EXEC_RELATION_REDIRECT_APPEND
+                             : EXEC_RELATION_REDIRECT_WRITE;
 
             token_idx = 0;
             node = next_node;
@@ -99,11 +99,6 @@ exec_context* parse(char* line) {
             // NOTE: When parser receives line with unescaped > or >> keyword
             //       it ignores everything after the next token
             parser_flags |= PARSER_FLAGS_STOP_AFTER_NEXT_TOKEN;
-            continue;
-        }
-
-        if (c == '>') {
-            lastc = c;
             continue;
         }
 

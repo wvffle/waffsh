@@ -58,7 +58,7 @@ void await_pid (pid_t pid) {
         return;
     }
 
-    int stat_loc = -1;
+    int stat_loc = -2;
     do {
         if (waitpid(pid, &stat_loc, WUNTRACED) == -1) {
             switch (errno) {

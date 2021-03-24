@@ -30,6 +30,7 @@ void execute (exec_context* ctx) {
     int fds[2 * length];
     int pids[length];
     for (int i = 0; i < length; ++i) {
+        pids[i] = -1;
         upipe(fds + i * 2);
     }
 

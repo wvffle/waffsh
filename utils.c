@@ -54,7 +54,11 @@ void upipe (int* fd) {
 }
 
 void await_pid (pid_t pid) {
-    int stat_loc;
+    if (pid == -1) {
+        return;
+    }
+
+    int stat_loc = -1;
     do {
         if (waitpid(pid, &stat_loc, WUNTRACED) == -1) {
             switch (errno) {
@@ -65,8 +69,6 @@ void await_pid (pid_t pid) {
                     syslog(LOG_ERR, "The function was interrupted by a signal.");
                     break;
             }
-
-            // NOTE: Should we exit with failure here?
         }
     } while (!WIFEXITED(stat_loc) && !WIFSIGNALED(stat_loc));
 }

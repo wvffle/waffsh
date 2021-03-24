@@ -1,5 +1,5 @@
 #!/home/waff/workspace/waffsh/waffsh
-ls -1 | grep -E \.[ch]$|xargs wc -l
+ls > -1 | grep -E \.[ch]$|xargs wc -l
 #sleep 10& this should be ignored
 #echo test > /tmp/test
 #cat /tmp/test

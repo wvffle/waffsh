@@ -62,6 +62,7 @@ exec_context* parse(char* line) {
 
     char lastc = '\0';
     int last_token_idx = 0;
+    int parser_flags = PARSER_FLAGS_NONE;
     // NOTE: normally we'd use strtok as it's much easier,
     //       though we're unsure if we can match
     //       multi character delimeters
@@ -78,6 +79,10 @@ exec_context* parse(char* line) {
                 _push_token(node, line, token_idx++, last_token_idx, i - 1);
                 last_token_idx = i + 1;
                 lastc = '\0';
+
+                if (parser_flags & PARSER_FLAGS_STOP_AFTER_NEXT_TOKEN) {
+                    break;
+                }
             }
 
             exec_node* next_node = _create_node();
@@ -90,6 +95,10 @@ exec_context* parse(char* line) {
 
             token_idx = 0;
             node = next_node;
+
+            // NOTE: When parser receives line with unescaped > or >> keyword
+            //       it ignores everything after the next token
+            parser_flags |= PARSER_FLAGS_STOP_AFTER_NEXT_TOKEN;
             continue;
         }
 
@@ -103,6 +112,10 @@ exec_context* parse(char* line) {
                 _push_token(node, line, token_idx++, last_token_idx, i);
                 last_token_idx = i + 1;
                 lastc = '\0';
+
+                if (parser_flags & PARSER_FLAGS_STOP_AFTER_NEXT_TOKEN) {
+                    break;
+                }
             }
 
             exec_node* next_node = _create_node();
@@ -121,6 +134,10 @@ exec_context* parse(char* line) {
                 _push_token(node, line, token_idx++, last_token_idx, i);
                 lastc = '\0';
                 last_token_idx = i + 1;
+
+                if (parser_flags & PARSER_FLAGS_STOP_AFTER_NEXT_TOKEN) {
+                    break;
+                }
             }
 
             // NOTE: When parser receives line with unescaped & character,

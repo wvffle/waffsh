@@ -7,11 +7,23 @@
 #include <string.h>
 #include <errno.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+void _close_all(int length, int* fds, int ffd) {
+    for (int i = 0; i < length * 2; ++i) {
+        close(*(fds + i));
+    }
+
+    if (ffd > 0) {
+        close(ffd);
+    }
+}
 
 void _execute_node (exec_node* node, exec_context* ctx) {
     if(execvp(node->tokens[0], node->tokens) == -1) {
-        syslog(LOG_ERR, "error when executing command %s: %s on line %d", node->tokens[0], strerror(errno), ctx->lineno);
-        fprintf(stderr, "line %d: %s: %s\n", ctx->lineno, node->tokens[0], strerror(errno));
+        syslog(LOG_ERR, "error when executing command [%-16s] %s on line %d", node->tokens[0], strerror(errno), ctx->lineno);
+        fprintf(stderr, "line %d: [%-16s] %s\n", ctx->lineno, node->tokens[0], strerror(errno));
         exit(EXIT_FAILURE);
     }
 }
@@ -21,16 +33,41 @@ void execute (exec_context* ctx) {
         return;
     }
 
-    int length = 0;
+    int ffd = -2;
+    int length = 1;
     exec_node* node = ctx->node;
-    for (exec_node* c = node;c;c = c->node) {
+    for (exec_node* c = ctx->node; c->node; c = c->node) {
+        if (c->relation & (EXEC_RELATION_REDIRECT_WRITE | EXEC_RELATION_REDIRECT_APPEND)) {
+            syslog(LOG_NOTICE, "Opening file: %s", c->node->tokens[0]);
+            ffd = open(
+                    c->node->tokens[0],
+                    c->relation & EXEC_RELATION_REDIRECT_APPEND
+                        ? O_WRONLY | O_CREAT | O_APPEND
+                        : O_WRONLY | O_CREAT | O_TRUNC,
+                    S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH
+            );
+
+            if (ffd == -1) {
+                syslog(LOG_ERR, "Error opening file: %s", strerror(errno));
+                perror(strerror(errno));
+            }
+
+            // NOTE: We can expect only
+            //       one following token
+            break;
+        }
+
         ++length;
+
     }
 
     int fds[2 * length];
+    memset(fds, -1, 2 * length);
+
     int pids[length];
+    memset(pids, -1, length);
+
     for (int i = 0; i < length; ++i) {
-        pids[i] = -1;
         upipe(fds + i * 2);
     }
 
@@ -39,35 +76,41 @@ void execute (exec_context* ctx) {
         for (int i = 0; i < length; ++i) {
             pid_t pid = ufork("error forking child process.");
             if (pid == 0) {
-                if (node->relation != EXEC_RELATION_NONE) {
-                    syslog(LOG_NOTICE, "%s: %d %d", node->tokens[0], i * 2 + 1, 1);
+                if (node->relation && (node->relation & (EXEC_RELATION_REDIRECT_APPEND | EXEC_RELATION_REDIRECT_WRITE)) == 0) {
+                    syslog(LOG_NOTICE, "[%-16s] %d %d", node->tokens[0], i * 2 + 1, 1);
                     dup2(fds[i * 2 + 1], 1);
                 }
 
                 if ((i != 0 && node->relation == EXEC_RELATION_PIPE) || i == length - 1) {
-                    syslog(LOG_NOTICE, "%s: %d %d", node->tokens[0], i * 2 - 2, 0);
+                    syslog(LOG_NOTICE, "[%-16s] %d %d", node->tokens[0], i * 2 - 2, 0);
                     dup2(fds[i * 2 - 2], 0);
                 }
 
-                for (int i = 0; i < length * 2; ++i) {
-                    close(*(fds + i));
+                if (node->relation & (EXEC_RELATION_REDIRECT_APPEND | EXEC_RELATION_REDIRECT_WRITE)) {
+                    syslog(LOG_NOTICE, "[%-16s] redirect to %s (%d)", node->tokens[0], node->node->tokens[0], ffd);
+                    dup2(ffd, 1);
                 }
 
+                _close_all(length, fds, ffd);
                 _execute_node(node, ctx);
             }
 
+            syslog(LOG_NOTICE, "[%-16s] pid: %d", node->tokens[0], pid);
             pids[i] = pid;
             node = node->node;
         }
+
+        _close_all(length, fds, ffd);
+        for (int i = 0; i < length; ++i) {
+            syslog(LOG_NOTICE, "[%-16s] await pid: %d", "", pids[i]);
+            await_pid(pids[i]);
+            syslog(LOG_NOTICE, "[%-16s] await pid: %d done", "", pids[i]);
+        }
+
+        exit(EXIT_SUCCESS);
     }
 
-    for (int i = 0; i < length * 2; ++i) {
-        close(*(fds + i));
-    }
-
-    for (int i = 0; i < length; ++i) {
-        await_pid(pids[i]);
-    }
+    _close_all(length, fds, ffd);
 
     // NOTE: Don't wait for pid to finish
     //       when EXEC_BACKGROUND is set
@@ -75,6 +118,7 @@ void execute (exec_context* ctx) {
         return;
     }
 
+    syslog(LOG_NOTICE, "await main pid: %d", pid);
     await_pid(pid);
 }
 

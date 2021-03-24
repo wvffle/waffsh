@@ -63,10 +63,10 @@ void await_pid (pid_t pid) {
         if (waitpid(pid, &stat_loc, WUNTRACED) == -1) {
             switch (errno) {
                 case ECHILD:
-                    syslog(LOG_ERR, "No member process that is a child of the calling process.");
+                    syslog(LOG_ERR, "await_pid(%d): No member process that is a child of the calling process.", pid);
                     break;
                 case EINTR:
-                    syslog(LOG_ERR, "The function was interrupted by a signal.");
+                    syslog(LOG_ERR, "await_pid(%d): The function was interrupted by a signal.", pid);
                     break;
             }
         }

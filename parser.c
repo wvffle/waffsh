@@ -48,6 +48,7 @@ exec_node* _create_node () {
 
 // TODO: Add support for escaping spaces
 // TODO: Add support for escaping \&
+// TODO: Add support for echo test > test.txt &
 exec_context* parse(char* line) {
     static int lineno = 0;
     exec_context* ctx = umalloc(sizeof(exec_context), "parser allocation error.");
@@ -99,6 +100,11 @@ exec_context* parse(char* line) {
             // NOTE: When parser receives line with unescaped > or >> keyword
             //       it ignores everything after the next token
             parser_flags |= PARSER_FLAGS_STOP_AFTER_NEXT_TOKEN;
+
+            if (line[i + 1] == '>') {
+                ++i;
+            }
+
             continue;
         }
 

@@ -76,9 +76,9 @@ exec_context* parse(char* line) {
         }
 
         if (c == '>') {
+            last_token_idx = i + 1;
             if (lastc != '\0') {
                 _push_token(node, line, token_idx++, last_token_idx, i - 1);
-                last_token_idx = i + 1;
                 lastc = '\0';
 
                 if (parser_flags & PARSER_FLAGS_STOP_AFTER_NEXT_TOKEN) {
@@ -109,9 +109,9 @@ exec_context* parse(char* line) {
         }
 
         if (c == '|') {
+            last_token_idx = i + 1;
             if (lastc != '\0') {
                 _push_token(node, line, token_idx++, last_token_idx, i);
-                last_token_idx = i + 1;
                 lastc = '\0';
 
                 if (parser_flags & PARSER_FLAGS_STOP_AFTER_NEXT_TOKEN) {

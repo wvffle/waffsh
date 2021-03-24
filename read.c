@@ -1,6 +1,6 @@
 #include "read.h"
 #include "constants.h"
-#include "utils/malloc.h"
+#include "utils.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -18,14 +18,7 @@ char read_char (int fd) {
     static size_t i = 0;
 
     if (i == 0 || i >= size) {
-        int res = read(fd, buffer, size);
-        if (res == -1) {
-            syslog(LOG_ERR, "reader error: %s", strerror(errno));
-            fprintf(stderr, "reader error: %s", strerror(errno));
-            exit(EXIT_FAILURE);
-        }
-
-        if (res == 0) {
+        if (uread(fd, buffer, size) == 0) {
             return EOF;
         }
 

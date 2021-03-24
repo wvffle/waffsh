@@ -3,6 +3,7 @@
 #define EXEC_BACKGROUND 1 << 0
 #define EXEC_SKIP       1 << 1
 
+#define EXEC_RELATION_NONE            0
 #define EXEC_RELATION_PIPE            1 << 0
 #define EXEC_RELATION_REDIRECT_WRITE  1 << 1
 #define EXEC_RELATION_REDIRECT_APPEND 1 << 2

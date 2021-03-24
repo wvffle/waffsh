@@ -1,7 +1,7 @@
 #include "parser.h"
 #include "constants.h"
 #include "executor.h"
-#include "utils/malloc.h"
+#include "utils.h"
 
 #include <string.h>
 #include <stdlib.h>

@@ -26,7 +26,8 @@ void loop (int fd) {
         }
 
         exec_context* ctx = parse(line);
-        // execute(ctx);
+//        printf("%d: %s\n", ctx->lineno, ctx->node->tokens[0]);
+        execute(ctx);
 
         free(line);
         free_exec_context(ctx);

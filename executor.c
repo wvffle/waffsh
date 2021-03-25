@@ -20,7 +20,7 @@ void _close_all(int length, int* fds, int ffd) {
 }
 
 void _execute_node (exec_node* node, exec_context* ctx) {
-    // TODO: Check if c->flags & EXEC_BUILTIN
+    // TODO [$605c9d48dad293066c4737fa]: Check if c->flags & EXEC_BUILTIN
     //       If so execute builtin and `exit(EXIT_SUCCESS);`
 
     if(execvp(node->tokens[0], node->tokens) == -1) {
@@ -42,7 +42,7 @@ void execute (exec_context* ctx) {
         if (c->relation & (EXEC_RELATION_REDIRECT_WRITE | EXEC_RELATION_REDIRECT_APPEND)) {
             syslog(LOG_NOTICE, "Opening file: %s", c->node->tokens[0]);
             ffd = uopen(
-                    // TODO: Get realpath
+                    // TODO [$605c9d48dad293066c4737fb]: Get realpath
                     c->node->tokens[0],
                     c->relation & EXEC_RELATION_REDIRECT_APPEND
                         ? O_WRONLY | O_CREAT | O_APPEND

@@ -38,7 +38,7 @@ void loop (int fd) {
 
         // NOTE: Only save history if we read from stdin
         //       and line does not start with ' ' or '#'
-        // TODO [$605c9fb87a37180656eec419]: Check if ctx->flags & EXEC_SKIP == 0 after parsing
+        // TODO [#15]: Check if ctx->flags & EXEC_SKIP == 0 after parsing
         if (fd == STDIN_FILENO && line[0] != ' ') {
             push_history(cmd_history, line);
         }
@@ -52,7 +52,7 @@ void loop (int fd) {
 }
 
 int main(int argc, char **argv) {
-    // TODO [$605c9fb87a37180656eec41a]: Handle atexit errors
+    // TODO [#16]: Handle atexit errors
     atexit(exit_hook);
 
     setlogmask(LOG_UPTO(LOG_NOTICE));

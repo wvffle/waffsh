@@ -13,8 +13,9 @@ This shell is a university project. You ***should not*** use it.
 
 ## Personal goals
 - [x] Support both `>` and `>>` redirects respectively
-- [ ] Support redirects in background when `&` is a second token (`ls > ls.txt &`)
 - [ ] Escape special characters (`>`, `&`, `#`)
+- [ ] Add `cd`, `exit` builtins
+- [ ] Support redirects in background when `&` is a second token (`ls > ls.txt &`)
 - [ ] Support quotes (`grep -E '"'`, `grep -E '"'`, `grep -E '\''`)
 - [ ] VIM-like interface
 - [ ] Handle resizing

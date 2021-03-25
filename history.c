@@ -108,5 +108,5 @@ void save_history(history* history) {
     }
 
     close(fd);
-    // TODO [#8]: Free history
+    // TODO: Free history
 }

@@ -14,7 +14,7 @@ struct s_exec_node {
     char** tokens;
     exec_node* node;
 
-    // TODO [#7]: Rename exec_node->relation to flags
+    // TODO: Rename exec_node->relation to flags
     //       Also rename EXEC_RELATION_* to EXEC_* and continue from previous EXEC_* bits
     //       So EXEC_PIPE is 1 << 2 and so on
     int relation;

@@ -86,6 +86,18 @@ char read_char (int fd) {
         return EOF;
     }
 
+    // NOTE: Replaced by VIM-like normal mode
+    // // NOTE: Checking for arrowup/arrowdown skips the escape codes
+    // if (fd == 0 && c == '\033') {
+    //     char nextc = read_char(fd);
+    //     if (nextc == 'A' || nextc == 'B') {
+    //         // Need a way to return the arrowup/arrowdown keys
+    //         // Maybe some unused escape code?
+    //     }
+    //
+    //     return read_char(fd);
+    // }
+
     return c;
 }
 

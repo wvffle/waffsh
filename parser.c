@@ -13,6 +13,8 @@ void _push_token(exec_node* node, char* line, int i, int start, int end) {
     token[end - start] = '\0';
     node->tokens[i] = token;
 
+    // TODO: If i === 0 and token is builtin, set node->flags |= EXEC_BUILTIN
+
     // NOTE: Dynamic check if next size would be bigger
     // TODO [#1]: Double buffer size to avoid O(n^2) complexity as much as possible
     if ((i + 1) / PARSER_TOKEN_BUFFER_SIZE > i / PARSER_TOKEN_BUFFER_SIZE) {

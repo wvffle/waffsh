@@ -7,7 +7,6 @@
 #include <string.h>
 #include <errno.h>
 #include <sys/wait.h>
-#include <sys/stat.h>
 #include <fcntl.h>
 
 void _close_all(int length, int* fds, int ffd) {
@@ -21,9 +20,12 @@ void _close_all(int length, int* fds, int ffd) {
 }
 
 void _execute_node (exec_node* node, exec_context* ctx) {
+    // TODO: Check if c->flags & EXEC_BUILTIN
+    //       If so execute builtin and `exit(EXIT_SUCCESS);`
+
     if(execvp(node->tokens[0], node->tokens) == -1) {
         syslog(LOG_ERR, "error when executing command [%-16s] %s on line %d", node->tokens[0], strerror(errno), ctx->lineno);
-        fprintf(stderr, "line %d: [%-16s] %s\n", ctx->lineno, node->tokens[0], strerror(errno));
+        fprintf(stderr, "line %d: %s: %s\n", ctx->lineno, node->tokens[0], strerror(errno));
         exit(EXIT_FAILURE);
     }
 }
@@ -39,16 +41,15 @@ void execute (exec_context* ctx) {
     for (exec_node* c = ctx->node; c->node; c = c->node) {
         if (c->relation & (EXEC_RELATION_REDIRECT_WRITE | EXEC_RELATION_REDIRECT_APPEND)) {
             syslog(LOG_NOTICE, "Opening file: %s", c->node->tokens[0]);
-            ffd = open(
+            ffd = uopen(
+                    // TODO: Get realpath
                     c->node->tokens[0],
                     c->relation & EXEC_RELATION_REDIRECT_APPEND
                         ? O_WRONLY | O_CREAT | O_APPEND
-                        : O_WRONLY | O_CREAT | O_TRUNC,
-                    S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH
+                        : O_WRONLY | O_CREAT | O_TRUNC
             );
 
             if (ffd == -1) {
-                syslog(LOG_ERR, "Error opening file: %s", strerror(errno));
                 perror(strerror(errno));
             }
 
@@ -58,7 +59,6 @@ void execute (exec_context* ctx) {
         }
 
         ++length;
-
     }
 
     int fds[2 * length];

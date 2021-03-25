@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "constants.h"
 
 #include <syslog.h>
 #include <stdlib.h>
@@ -6,6 +7,7 @@
 #include <string.h>
 #include <errno.h>
 #include <sys/wait.h>
+#include <fcntl.h>
 
 void* umalloc (int size, char* error) {
     void* res = malloc(size);
@@ -81,4 +83,22 @@ int uread (int fd, char* buf, int size) {
     }
 
     return res;
+}
+
+int uopen3 (char* filepath, int flags, int perms) {
+    int fd = open(filepath, flags, perms);
+
+    if (fd == -1) {
+        syslog(LOG_ERR, "Error opening file: %s", strerror(errno));
+    }
+
+    return fd;
+}
+
+int uopen (char* filepath, int flags) {
+    return uopen3(filepath, flags, UTILS_FILE_PERMS);
+}
+
+int signum (int n) {
+    return n < 0 ? -1 : (n == 0 ? 0 : 1);
 }

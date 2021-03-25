@@ -15,8 +15,10 @@ printf \n
 echo I use arch, btw. > test.txt
  cat test.txt
 
-
 # shellcheck disable=SC2038
 # shellcheck disable=SC2061
 # shellcheck disable=SC2035
 find . -iname *.txt -type f | xargs rm
+
+echo This should fail:
+it_fails

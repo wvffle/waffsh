@@ -8,7 +8,7 @@ This shell is a university project. You ***should not*** use it.
 - [x] Running process in background (`sleep 10 &`)
 - [x] Working pipes (`ls -1 | sort`)
 - [x] Working `>>` redirect (`ls >> ls.txt`)
-- [ ] Command history stored in `~/.waffsh_history`
+- [x] Command history stored in `~/.waffsh_history`
 - [ ] View command history when SIGQUIT received
 
 ## Personal goals

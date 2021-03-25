@@ -108,5 +108,5 @@ void save_history(history* history) {
     }
 
     close(fd);
-    // TODO [$605c9d48dad293066c4737fd]: Free history
+    // TODO [#8]: Free history
 }

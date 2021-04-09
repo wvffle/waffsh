@@ -9,7 +9,7 @@ This shell is a university project. You ***should not*** use it.
 - [x] Working pipes (`ls -1 | sort`)
 - [x] Working `>>` redirect (`ls >> ls.txt`)
 - [x] Command history stored in `~/.waffsh_history`
-- [ ] View command history when SIGQUIT received
+- [x] View command history when SIGQUIT received
 
 ## Personal goals
 - [x] Support both `>` and `>>` redirects respectively

@@ -104,9 +104,12 @@ void save_history(history* history) {
     while (curr) {
         write(fd, curr->line, strlen(curr->line));
         write(fd, "\n", strlen("\n"));
-        curr = curr->next;
+        history_node* next = curr->next;
+        free(curr->line);
+        free(curr);
+        curr = next;
     }
 
     close(fd);
-    // TODO [#14]: Free history
+    free(history);
 }

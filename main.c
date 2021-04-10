@@ -15,12 +15,30 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <pwd.h>
+#include <signal.h>
 
 history* cmd_history = NULL;
 void exit_hook () {
     if (cmd_history != NULL) {
         save_history(cmd_history);
     }
+}
+
+void sigquit_handler(int signum) {
+    if (cmd_history == NULL) {
+        return;
+    }
+
+    fprintf(stdout, "\nHistory:\n");
+
+    int i = 0;
+    history_node* node = cmd_history->node;
+    while (node && node->next) {
+        fprintf(stdout, "%d: %s\n", ++i, node->line);
+        node = node->next;
+    }
+
+    fprintf(stdout, "%s", PROMPT);
 }
 
 void loop (int fd) {
@@ -36,14 +54,14 @@ void loop (int fd) {
             break;
         }
 
+        exec_context* ctx = parse(line);
+
         // NOTE: Only save history if we read from stdin
         //       and line does not start with ' ' or '#'
-        // TODO [#15]: Check if ctx->flags & EXEC_SKIP == 0 after parsing
-        if (fd == STDIN_FILENO && line[0] != ' ') {
+        if (fd == STDIN_FILENO && (line[0] != ' ' || (ctx->flags & EXEC_SKIP) == 0)) {
             push_history(cmd_history, line);
         }
 
-        exec_context* ctx = parse(line);
         execute(ctx);
 
         free(line);
@@ -70,6 +88,9 @@ int main(int argc, char **argv) {
         free(path);
     } else {
         cmd_history = get_history();
+
+        // TODO: Handle signal errors
+        signal(SIGQUIT, sigquit_handler);
     }
 
     loop(fd);

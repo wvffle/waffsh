@@ -2,6 +2,7 @@
 #include "constants.h"
 #include "executor.h"
 #include "utils.h"
+#include "builtins.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -13,7 +14,9 @@ void _push_token(exec_node* node, char* line, int i, int start, int end) {
     token[end - start] = '\0';
     node->tokens[i] = token;
 
-    // TODO [#17]: If i === 0 and token is builtin, set node->flags |= EXEC_BUILTIN
+    if (i == 0 && is_builtin(token)) {
+        node->flags |= EXEC_BUILTIN;
+    }
 
     // NOTE: Dynamic check if next size would be bigger
     // TODO [#18]: Double buffer size to avoid O(n^2) complexity as much as possible
@@ -38,7 +41,7 @@ exec_node* _create_node () {
         node->tokens[i] = NULL;
     }
     node->node = NULL;
-    node->relation = 0;
+    node->flags = 0;
     return node;
 }
 
@@ -92,9 +95,9 @@ exec_context* parse(char* line) {
 
             node->node = next_node;
             node->tokens[token_idx] = NULL;
-            node->relation = line[i + 1] == '>'
-                             ? EXEC_RELATION_REDIRECT_APPEND
-                             : EXEC_RELATION_REDIRECT_WRITE;
+            node->flags = line[i + 1] == '>'
+                             ? EXEC_REDIRECT_APPEND
+                             : EXEC_REDIRECT_WRITE;
 
             token_idx = 0;
             node = next_node;
@@ -125,7 +128,7 @@ exec_context* parse(char* line) {
 
             node->node = next_node;
             node->tokens[token_idx] = NULL;
-            node->relation = EXEC_RELATION_PIPE;
+            node->flags = EXEC_PIPE;
 
             token_idx = 0;
             node = next_node;

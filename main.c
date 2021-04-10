@@ -89,7 +89,7 @@ int main(int argc, char **argv) {
     } else {
         cmd_history = get_history();
 
-        // TODO [$6071cd1ae776e5063ac8e340]: Handle signal errors
+        // TODO [#27]: Handle signal errors
         signal(SIGQUIT, sigquit_handler);
     }
 

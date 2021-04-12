@@ -12,13 +12,6 @@
 int* iterators;
 char** buffers;
 
-//void init_reader () {
-//    for (int i = 0; i < N; ++i) {
-//        iterators[i] = -1;
-//        buffers[i] = NULL;
-//    }
-//}
-
 char read_char (int fd) {
     int size = fd == 0 ? 1 : READER_FILE_BUFFER_SIZE;
 

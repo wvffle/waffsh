@@ -1,9 +1,12 @@
 #include "builtins.h"
+#include "history.h"
+#include "constants.h"
 
 #include <stdlib.h>
 #include <syslog.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdio.h>
 
 #define BUILTINS_LENGTH sizeof(builtin_names) / sizeof(char*)
 
@@ -21,14 +24,46 @@ int builtin_cd (char** tokens) {
     return 0;
 }
 
+int builtin_history (char** tokens) {
+    if (cmd_history == NULL) {
+        return 0;
+    }
+
+    fprintf(stdout, "\nHistory:\n");
+
+    int i = 0;
+    history_node* node = cmd_history->node;
+    while (node && node->next) {
+        fprintf(stdout, "%d: %s\n", ++i, node->line);
+        node = node->next;
+    }
+
+
+    if (tokens[1] != NULL && strcmp(tokens[1], "--with-prompt") == 0) {
+        fprintf(stdout, "%s", PROMPT);
+        fflush(stdout);
+    }
+
+    return 1;
+}
+
+int builtin_pid (char** tokens) {
+    fprintf(stdout, "%d\n", getpid());
+    return 1;
+}
+
 char* builtin_names[] = {
         "cd",
-        "exit"
+        "pid",
+        "exit",
+        "history",
 };
 
 int (*builtin_functions[]) (char**) = {
         &builtin_cd,
-        &builtin_exit
+        &builtin_pid,
+        &builtin_exit,
+        &builtin_history,
 };
 
 int is_builtin (char* token) {

@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <fcntl.h>
 
+history* cmd_history = NULL;
+
 history_node* _create_history_node (char* line) {
     history_node* node = umalloc(sizeof(history_node), "history allocation error.");
     node->next = NULL;
@@ -48,6 +50,10 @@ history* get_history () {
 
     char* line;
     while ((line = read_line(fd)) != NULL) {
+        if (line[0] == '\0') {
+            continue;
+        }
+
         history_node* next = _create_history_node(line);
         node->next = next;
         next->prev = node;

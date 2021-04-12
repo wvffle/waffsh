@@ -26,7 +26,7 @@ history.o: history.c history.h utils.h read.h
 utils.o: utils.h constants.h
 	$(CC) $(CFLAGS) -c utils.c
 
-builtins.o: builtins.h builtins.h
+builtins.o: builtins.h builtins.h history.h constants.h
 	$(CC) $(CFLAGS) -c builtins.c
 
 clean:

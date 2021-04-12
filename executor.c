@@ -25,7 +25,7 @@ void _execute_node (exec_node* node, exec_context* ctx) {
         // NOTE: This is for more difficult builtins that take stdin and write to stdout
         //       cd and exit won't work there
         if (!exec_builtin(node->tokens)) {
-            // TODO: Handle error
+            // TODO [$6073a857b98763060c4bc34b]: Handle error
         }
     }
 
@@ -44,7 +44,7 @@ void execute (exec_context* ctx) {
     if (ctx->node->flags & EXEC_BUILTIN) {
         // NOTE: This takes place in main thread, handles cd and exit
         if (!exec_builtin(ctx->node->tokens)) {
-            // TODO: Handle error
+            // TODO [$6073a857b98763060c4bc34c]: Handle error
         }
         return;
     }
@@ -56,7 +56,7 @@ void execute (exec_context* ctx) {
         if (c->flags & (EXEC_REDIRECT_WRITE | EXEC_REDIRECT_APPEND)) {
             syslog(LOG_NOTICE, "Opening file: %s", c->node->tokens[0]);
             ffd = uopen(
-                    // TODO: Get realpath
+                    // TODO [$6073a857b98763060c4bc34d]: Get realpath
                     c->node->tokens[0],
                     c->flags & EXEC_REDIRECT_APPEND
                         ? O_WRONLY | O_CREAT | O_APPEND

@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
     } else {
         cmd_history = get_history();
 
-        // TODO: Handle signal errors
+        // TODO [#27]: Handle signal errors
         signal(SIGQUIT, sigquit_handler);
     }
 

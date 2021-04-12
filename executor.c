@@ -25,7 +25,7 @@ void _execute_node (exec_node* node, exec_context* ctx) {
         // NOTE: This is for more difficult builtins that take stdin and write to stdout
         //       cd and exit won't work there
         if (!exec_builtin(node->tokens)) {
-            // TODO: Handle error
+            // TODO [#25]: Handle error
         }
     }
 
@@ -44,7 +44,7 @@ void execute (exec_context* ctx) {
     if (ctx->node->flags & EXEC_BUILTIN) {
         // NOTE: This takes place in main thread, handles cd and exit
         if (!exec_builtin(ctx->node->tokens)) {
-            // TODO: Handle error
+            // TODO [#26]: Handle error
         }
         return;
     }

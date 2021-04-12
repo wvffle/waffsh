@@ -13,7 +13,7 @@ This shell is a university project. You ***should not*** use it.
 
 ## Personal goals
 - [x] Support both `>` and `>>` redirects respectively
-- [ ] Escape special characters (`>`, `&`, `#`)
+- [x] Escape special characters (`>`, `&`, `#`)
 - [x] Add `cd`, `exit` builtins
 - [ ] Support redirects in background when `&` is a second token (`ls > ls.txt &`)
 - [ ] Support quotes (`grep -E '"'`, `grep -E '"'`, `grep -E '\''`)

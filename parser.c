@@ -41,7 +41,7 @@ void _push_token(exec_node* node, char* line, int i, int start, int end) {
     }
 
     // NOTE: Dynamic check if next size would be bigger
-    // TODO [$6073a857b98763060c4bc350]: Double buffer size to avoid O(n^2) complexity as much as possible
+    // TODO [#35]: Double buffer size to avoid O(n^2) complexity as much as possible
     if ((i + 1) / PARSER_TOKEN_BUFFER_SIZE > i / PARSER_TOKEN_BUFFER_SIZE) {
         int size = ((i + 1) / PARSER_TOKEN_BUFFER_SIZE + 1) * PARSER_TOKEN_BUFFER_SIZE;
         node->tokens = urealloc(
@@ -73,7 +73,7 @@ exec_node* _create_node () {
 //       - cmd2 >> cmd2
 //       - cmd1 &
 
-// TODO [$6073a857b98763060c4bc351]: Add support for echo test > test.txt &
+// TODO [#36]: Add support for echo test > test.txt &
 exec_context* parse(char* line) {
     static int lineno = 0;
     exec_context* ctx = umalloc(sizeof(exec_context), "parser allocation error.");

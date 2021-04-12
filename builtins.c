@@ -16,7 +16,7 @@ int builtin_exit (char** tokens) {
 
 int builtin_cd (char** tokens) {
     if (tokens[1] != NULL) {
-        // TODO [$6073a857b98763060c4bc349]: Handle errors
+        // TODO [#28]: Handle errors
         chdir(tokens[1]);
         return 1;
     }
@@ -88,6 +88,6 @@ int exec_builtin (char** tokens) {
         }
     }
 
-    // TODO [$6073a857b98763060c4bc34a]: Set `command not found` error
+    // TODO [#29]: Set `command not found` error
     return 0;
 }

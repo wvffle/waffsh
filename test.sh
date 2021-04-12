@@ -9,7 +9,7 @@ mkdir -p test
 echo line count in source/header files: > test/test.txt
 # shellcheck disable=SC2062
 # shellcheck disable=SC2010
-ls -1 | grep -E \.[ch]$ |xargs wc -l | sort >> test/test.txt
+ls -1 | grep -E \.[ch]$ |xargs wc -l| sort >> test/test.txt
 
 pwd
 # shellcheck disable=SC2164

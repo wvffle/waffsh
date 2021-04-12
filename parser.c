@@ -114,7 +114,6 @@ exec_context* parse(char* line) {
         }
 
         if (c == '|') {
-            last_token_idx = i + 1;
             if (lastc != '\0') {
                 _push_token(node, line, token_idx++, last_token_idx, i);
                 lastc = '\0';
@@ -123,6 +122,8 @@ exec_context* parse(char* line) {
                     break;
                 }
             }
+
+            last_token_idx = i + 1;
 
             exec_node* next_node = _create_node();
 

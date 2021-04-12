@@ -63,7 +63,7 @@ void loop (int fd) {
 }
 
 int main(int argc, char **argv) {
-    // TODO [#16]: Handle atexit errors
+    // TODO: Handle atexit errors
     atexit(exit_hook);
 
     setlogmask(LOG_UPTO(LOG_NOTICE));
@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
     } else {
         cmd_history = get_history();
 
-        // TODO [#27]: Handle signal errors
+        // TODO: Handle signal errors
         signal(SIGQUIT, sigquit_handler);
     }
 

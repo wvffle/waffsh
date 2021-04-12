@@ -6,7 +6,7 @@ sleep 10& this should be ignored
 
 mkdir -p test
 
-echo line count in source/header files:> test/test.txt
+echo line count in source/header files:>test/test.txt
 # shellcheck disable=SC2062
 # shellcheck disable=SC2010
 ls -1 | grep -E \.[ch]$ |xargs wc -l| sort >>test/test.txt
@@ -22,6 +22,9 @@ cat test.txt # this is an inline comment
 printf \n
 echo I use arch, btw. > test.txt
  cat test.txt
+
+echo cat \| cat \& cat \# cat \>> test.txt
+cat test.txt
 
 # shellcheck disable=SC2103
 cd ..

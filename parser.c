@@ -10,8 +10,30 @@
 
 void _push_token(exec_node* node, char* line, int i, int start, int end) {
     char* token = umalloc(sizeof(char) * (end - start + 1), "tokenizer allocation error.");
-    strncpy(token, line + sizeof(char) * start, end - start);
-    token[end - start] = '\0';
+    // NOTE: Normally we'd copy the line though,
+    //       We've added the support for escaping characters
+    //       and we need to remove the backslashes
+    // strncpy(token, line + sizeof(char) * start, end - start);
+    memset(token, '\0', end - start + 1);
+
+    int j = -1;
+    int k = -1;
+    int last_escaped = -1;
+    while (++j < end - start) {
+        char c = line[start + j];
+
+        if (c == '\\') {
+            if (start + j - 1 >= 0 && line[start + j - 1] == '\\' && last_escaped != start + j - 1) {
+                token[++k] =  c;
+                last_escaped = start + j;
+            }
+
+            continue;
+        }
+
+        token[++k] =  c;
+    }
+
     node->tokens[i] = token;
 
     if (i == 0 && is_builtin(token)) {
@@ -51,8 +73,6 @@ exec_node* _create_node () {
 //       - cmd2 >> cmd2
 //       - cmd1 &
 
-// TODO [#19]: Add support for escaping spaces
-// TODO [#20]: Add support for escaping \&
 // TODO [#21]: Add support for echo test > test.txt &
 exec_context* parse(char* line) {
     static int lineno = 0;
@@ -80,9 +100,10 @@ exec_context* parse(char* line) {
             continue;
         }
 
-        if (c == '>') {
+        if (lastc != '\\' && c == '>') {
             if (lastc != '\0') {
-                _push_token(node, line, token_idx++, last_token_idx, i - 1);
+                // NOTE: We have spotted something like `\>>`
+                _push_token(node, line, token_idx++, last_token_idx, i);
                 lastc = '\0';
 
                 if (parser_flags & PARSER_FLAGS_STOP_AFTER_NEXT_TOKEN) {
@@ -115,7 +136,7 @@ exec_context* parse(char* line) {
             continue;
         }
 
-        if (c == '|') {
+        if (lastc != '\\' && c == '|') {
             if (lastc != '\0') {
                 _push_token(node, line, token_idx++, last_token_idx, i);
                 lastc = '\0';
@@ -139,7 +160,7 @@ exec_context* parse(char* line) {
         }
 
         if (strchr(PARSER_TOKEN_DELIMETERS, c) != NULL || c == '\0') {
-            if (lastc != '\0') {
+            if (lastc != '\\' && lastc != '\0') {
                 _push_token(node, line, token_idx++, last_token_idx, i);
                 lastc = '\0';
                 last_token_idx = i + 1;
@@ -152,15 +173,19 @@ exec_context* parse(char* line) {
             // NOTE: When parser receives line with unescaped & character,
             //       it ignores everything after & character and executes
             //       left hand side in background.
-            if (c == '&') {
+            if (lastc != '\\' && c == '&') {
                 ctx->flags |= EXEC_BACKGROUND;
                 node->tokens[token_idx] = NULL;
                 break;
             }
 
-            if (c == '#') {
+            if (lastc != '\\' && c == '#') {
                 node->tokens[token_idx] = NULL;
                 break;
+            }
+
+            if (lastc == '\\') {
+                lastc = c;
             }
 
             continue;

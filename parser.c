@@ -109,6 +109,7 @@ exec_context* parse(char* line) {
 
             if (line[i + 1] == '>') {
                 ++i;
+                ++last_token_idx;
             }
 
             continue;

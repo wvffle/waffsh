@@ -2,6 +2,8 @@ waffsh
 ---
 This shell is a university project. You ***should not*** use it.
 
+It is available on GitHub: https://github.com/wvffle/waffsh
+
 ## The requirements
 - [x] Ability to start shell in an interactive mode
 - [x] Ability to start basic shell scripts with `#!/usr/bin/waffsh`
